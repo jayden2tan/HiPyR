@@ -14,13 +14,13 @@ class AudioController:
 
 
     # basic controls for now
-    async def play(self, e):
-        await self.audio_player.play()
+    # async def play(self, e):
+    #     await self.audio_player.play()
 
 
-    async def pause(self, e):
+    async def pause(self):
         await self.audio_player.pause()
 
 
-    async def resume(self, e):
+    async def resume(self):
         await self.audio_player.resume()
