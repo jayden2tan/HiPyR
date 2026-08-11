@@ -1,14 +1,16 @@
 [project]
-name = "hipyr"
+name = "HiPyR"
 version = "0.1.0"
 description = ""
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [
-    { name = "Flet developer", email = "you@example.com" }
+    { name = "Jayden Tan" }
 ]
 dependencies = [
-    "flet>=0.86.5"
+    "flet>=0.86.5",
+    # "flet-audio>=0.86.5",
+    "mutagen>=1.48.1"
 ]
 
 [dependency-groups]
@@ -26,10 +28,9 @@ asyncio_mode = "auto"
 testpaths = ["tests"]
 
 [tool.flet]
-org = "com.mycompany"
-product = "hipyr"
-company = "Flet"
-copyright = "Copyright (C) 2023-2026 by Flet"
+org = "com.jayden2tan.hipyr"
+product = "HiPyR"
+copyright = "Copyright (C) 2026 by Jayden Tan"
 
 [tool.flet.app]
 path = "src"
