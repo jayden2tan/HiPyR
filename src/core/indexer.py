@@ -24,28 +24,16 @@ def add_metadata(paths) -> list:
     meta = []
     for path in paths:
         file_meta = metadata.get_metadata(path)
-        if file_meta == {}:
-            meta.append(
-                {
-                    "path": str(path),
-                    "artist": None,
-                    "title": None,
-                    "album": None,
-                    "track": None,
-                    "date": None
-                }
-            )
-        else:
-            meta.append(
-                {
-                    "path": str(path),
-                    "artist": file_meta["artist"],
-                    "title": file_meta["title"],
-                    "album": file_meta["album"],
-                    "track": file_meta["tracknumber"],
-                    "date": file_meta["date"]
-                }
-            )
+        meta.append(
+            {
+                "path": str(path),
+                "artist": file_meta.get("artist", None),
+                "title": file_meta.get("title", None),
+                "album": file_meta.get("album", None),
+                "track": file_meta.get("tracknumber", None),
+                "date": file_meta.get("date", None)
+            }
+        )
     return meta
 
 
@@ -55,8 +43,5 @@ def encode_json(data):
 
 
 def index(paths):
-    scanned = scan(paths)
-    meta = add_metadata(scanned)
-    encode_json(meta)
+    encode_json(add_metadata(scan(paths)))
 
-index(["C:\\Users\\Jay\\Music\\Local Music\\Lift Yr. Skinny Fists Like Antennas to Heaven!"])
