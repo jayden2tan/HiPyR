@@ -6,16 +6,21 @@ from utils import metadata
 
 def scan(paths: list):
     """
-    works but is kind of slow (~3 ms/file)
     might come back implement yield instead of appending to a list for large amounts of files
     """
     file_paths = []
     for path in paths:
-        directory = Path(path)
-        for file in directory.iterdir():
-            if file.is_file() and magic.from_file(str(file), mime=True).startswith("audio/"):
-                file_paths.append(str(file))
-                # yield str(file)
+        for item in Path(path).rglob("*"):
+            if item.is_file():
+                try:
+                    with open(item, "rb") as i:
+                        # reads the first 1445 bytes instead of whole file to speed up processing
+                        # https://mimesniff.spec.whatwg.org/#resource-header
+                        header = i.read(1445)
+                    if magic.from_buffer(header, mime=True).startswith("audio/"):
+                        file_paths.append(str(item))
+                except OSError:
+                    pass
 
     return file_paths
 
