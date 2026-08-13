@@ -2,10 +2,16 @@ import flet as ft
 from core.playback import AudioController
 
 
-def control_gui(controller: AudioController):
+def playback_ui(controller: AudioController):
     playback_state = {"is_playing": False}
 
-    button = ft.IconButton(icon=ft.Icons.PLAY_ARROW)
+    button = ft.IconButton(
+        icon=ft.Icons.PLAY_ARROW,
+        scale=1.2,
+        mouse_cursor=ft.MouseCursor.CLICK,
+        hover_color=ft.Colors.TRANSPARENT,
+        highlight_color=ft.Colors.TRANSPARENT
+    )
 
     async def button_clicked(e):
         if playback_state["is_playing"]:
@@ -23,6 +29,7 @@ def control_gui(controller: AudioController):
     button.on_click = button_clicked
 
     return ft.Row(
-        [button],
-        alignment=ft.MainAxisAlignment.CENTER
+            [button],
+            alignment=ft.MainAxisAlignment.CENTER
     )
+
