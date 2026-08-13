@@ -1,6 +1,6 @@
 import flet as ft
 from core.playback import AudioController
-from core.playback_control import control_gui
+from ui.components.playback_control import control_gui
 
 
 def main(page: ft.Page):

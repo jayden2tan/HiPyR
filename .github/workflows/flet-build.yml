@@ -11,10 +11,13 @@ env:
 
   # https://flet.dev/docs/reference/environment-variables
   FLET_CLI_NO_RICH_OUTPUT: 1
+  FLET_DESKTOP_FLAVOR: full
 
 jobs:
   build:
     name: Build ${{ matrix.name }}
+    permissions:
+      contents: read
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
@@ -42,6 +45,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Setup uv
         uses: astral-sh/setup-uv@v6
@@ -53,6 +58,11 @@ jobs:
             sudo apt update --allow-releaseinfo-change
             LINUX_DEPS="$(uv run flet --version --json | jq -r '.linux_dependencies | join(" ")')"
             sudo apt-get install -y --no-install-recommends $LINUX_DEPS
+            sudo apt-get install -y \
+            libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
+            libgstreamer-plugins-bad1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good \
+            gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-tools \
+            gstreamer1.0-x gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-qt5 gstreamer1.0-pulseaudio
             sudo apt-get clean
 
       - name: Install macOS libmagic dependency
@@ -62,7 +72,20 @@ jobs:
       - name: Build app
         shell: bash
         run: |
-          uv run ${{ matrix.build_cmd }} --yes --verbose
+          if [ "${{ matrix.name }}" = "windows" ]; then
+            for attempt in 1 2 3; do
+              uv run ${{ matrix.build_cmd }} --yes --verbose && break
+              if [ "$attempt" -lt 3 ]; then
+                echo "Windows build failed on attempt $attempt; retrying in 15 seconds..."
+                sleep 15
+              else
+                echo "Windows build failed after $attempt attempts."
+                exit 1
+              fi
+            done
+          else
+            uv run ${{ matrix.build_cmd }} --yes --verbose
+          fi
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v5.0.0
