@@ -22,7 +22,7 @@ def settings_view(page: ft.Page):
                 ft.ListTile(
                     leading=ft.Icon(ft.Icons.LIBRARY_BOOKS),
                     title=ft.Text("Library"),
-                    on_click=lambda _: change_tab(library_settings()),
+                    on_click=lambda _: change_tab(library_settings),
                 )
             ],
         ),
