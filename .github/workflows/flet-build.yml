@@ -11,10 +11,13 @@ env:
 
   # https://flet.dev/docs/reference/environment-variables
   FLET_CLI_NO_RICH_OUTPUT: 1
+  FLET_DESKTOP_FLAVOR: full
 
 jobs:
   build:
     name: Build ${{ matrix.name }}
+    permissions:
+      contents: read
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
@@ -42,6 +45,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Setup uv
         uses: astral-sh/setup-uv@v6
@@ -53,6 +58,12 @@ jobs:
             sudo apt update --allow-releaseinfo-change
             LINUX_DEPS="$(uv run flet --version --json | jq -r '.linux_dependencies | join(" ")')"
             sudo apt-get install -y --no-install-recommends $LINUX_DEPS
+            sudo apt install -y \
+            libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libgstreamer-plugins-bad1.0-dev \
+            gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad \
+            gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-doc gstreamer1.0-tools \
+            gstreamer1.0-x gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 \
+            gstreamer1.0-qt5 gstreamer1.0-pulseaudio
             sudo apt-get clean
 
       - name: Install macOS libmagic dependency
