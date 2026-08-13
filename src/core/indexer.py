@@ -14,9 +14,7 @@ def scan(paths: list):
             if item.is_file():
                 try:
                     with open(item, "rb") as i:
-                        # reads the first 1445 bytes instead of whole file to speed up processing
-                        # https://mimesniff.spec.whatwg.org/#resource-header
-                        header = i.read(1445)
+                        header = i.read(2048)
                     if magic.from_buffer(header, mime=True).startswith("audio/"):
                         file_paths.append(str(item))
                 except OSError:
