@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 env:
-  UV_PYTHON: 3.12
+  UV_PYTHON: 3.14
   PYTHONUTF8: 1
 
   # https://flet.dev/docs/reference/environment-variables
@@ -54,6 +54,10 @@ jobs:
             LINUX_DEPS="$(uv run flet --version --json | jq -r '.linux_dependencies | join(" ")')"
             sudo apt-get install -y --no-install-recommends $LINUX_DEPS
             sudo apt-get clean
+
+      - name: Install macOS libmagic dependency
+        if: matrix.name == 'macos'
+        run: brew install libmagic
 
       - name: Build app
         shell: bash
