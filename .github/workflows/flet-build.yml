@@ -1,0 +1,86 @@
+name: Build Flet App
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+env:
+  UV_PYTHON: 3.14
+  PYTHONUTF8: 1
+
+  # https://flet.dev/docs/reference/environment-variables
+  FLET_CLI_NO_RICH_OUTPUT: 1
+
+jobs:
+  build:
+    name: Build ${{ matrix.name }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # -------- Desktop --------
+          - name: linux
+            runner: ubuntu-latest
+            build_cmd: "flet build linux"
+            artifact_path: build/linux
+            needs_linux_deps: true
+
+          - name: macos
+            runner: macos-26
+            build_cmd: "flet build macos"
+            artifact_path: build/macos
+            needs_linux_deps: false
+
+          - name: windows
+            runner: windows-latest
+            build_cmd: "flet build windows"
+            artifact_path: build/windows
+            needs_linux_deps: false
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Install Linux dependencies
+        if: matrix.needs_linux_deps
+        shell: bash
+        run: |
+            sudo apt update --allow-releaseinfo-change
+            LINUX_DEPS="$(uv run flet --version --json | jq -r '.linux_dependencies | join(" ")')"
+            sudo apt-get install -y --no-install-recommends $LINUX_DEPS
+            sudo apt-get clean
+
+      - name: Install macOS libmagic dependency
+        if: matrix.name == 'macos'
+        run: brew install libmagic
+
+      - name: Build app
+        shell: bash
+        run: |
+          if [ "${{ matrix.name }}" = "windows" ]; then
+            for attempt in 1 2 3; do
+              uv run ${{ matrix.build_cmd }} --yes --verbose && break
+              if [ "$attempt" -lt 3 ]; then
+                echo "Windows build failed on attempt $attempt; retrying in 15 seconds..."
+                sleep 15
+              else
+                echo "Windows build failed after $attempt attempts."
+                exit 1
+              fi
+            done
+          else
+            uv run ${{ matrix.build_cmd }} --yes --verbose
+          fi
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v5.0.0
+        with:
+          name: ${{ matrix.name }}-build-artifact
+          path: ${{ matrix.artifact_path }}
+          if-no-files-found: error
+          overwrite: false
