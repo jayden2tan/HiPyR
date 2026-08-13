@@ -20,22 +20,6 @@ For more details on running the app, refer to the [Getting Started Guide](https:
 
 ## Build the app
 
-### Android
-
-```bash
-flet build apk -v
-```
-
-For more details on building and signing `.apk` or `.aab`, refer to the [Android Packaging Guide](https://flet.dev/docs/publish/android/).
-
-### iOS
-
-```bash
-flet build ipa -v
-```
-
-For more details on building and signing `.ipa`, refer to the [iOS Packaging Guide](https://flet.dev/docs/publish/ios/).
-
 ### macOS
 
 ```bash
